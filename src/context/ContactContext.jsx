@@ -3,31 +3,51 @@ import { createContext, useState, useEffect } from "react"
 export const ContactContext = createContext()
 
 const API_URL = "https://playground.4geeks.com/contact"
+const AGENDA = "erika" // 
 
 export const ContactProvider = ({ children }) => {
   const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  // 📌 Obtener contactos
+  // 🔥 helper fetch
+  const fetchAPI = async (endpoint, options = {}) => {
+    try {
+      const res = await fetch(`${API_URL}${endpoint}`, options)
+
+      if (!res.ok) {
+        const errData = await res.json()
+        throw new Error(errData.message || "API Error")
+      }
+
+      return await res.json()
+    } catch (err) {
+      setError(err.message)
+      throw err
+    }
+  }
+
+  // GET
   const getContacts = async () => {
     setLoading(true)
-    try {
-      const res = await fetch(`${API_URL}/agendas/erika/contacts`)
-      if (!res.ok) throw new Error("Error fetching contacts")
+    setError(null)
 
-      const data = await res.json()
+    try {
+      const data = await fetchAPI(`/agendas/${AGENDA}/contacts`)
       setContacts(data.contacts || [])
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
   }
 
-  // 📌 Crear contacto
+  // CREATE (optimista)
   const createContact = async (contact) => {
+    setError(null)
+
     try {
-      const res = await fetch(`${API_URL}/agendas/erika/contacts`, {
+      const data = await fetchAPI(`/agendas/${AGENDA}/contacts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -35,26 +55,48 @@ export const ContactProvider = ({ children }) => {
         body: JSON.stringify(contact)
       })
 
-      if (!res.ok) throw new Error("Error creating contact")
-
-      await getContacts()
-    } catch (error) {
-      console.error(error)
+      setContacts(prev => [...prev, data])
+    } catch (err) {
+      console.error(err)
+      throw err
     }
   }
 
-  // 📌 Eliminar contacto
-  const deleteContact = async (id) => {
+  // UPDATE
+  const updateContact = async (id, updatedData) => {
+    setError(null)
+
     try {
-      const res = await fetch(`${API_URL}/contacts/${id}`, {
+      await fetchAPI(`/contacts/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedData)
+      })
+
+      setContacts(prev =>
+        prev.map(c => (c.id === id ? { ...c, ...updatedData } : c))
+      )
+    } catch (err) {
+      console.error(err)
+      throw err
+    }
+  }
+
+  // DELETE
+  const deleteContact = async (id) => {
+    setError(null)
+
+    try {
+      await fetchAPI(`/contacts/${id}`, {
         method: "DELETE"
       })
 
-      if (!res.ok) throw new Error("Error deleting contact")
-
-      await getContacts()
-    } catch (error) {
-      console.error(error)
+      setContacts(prev => prev.filter(c => c.id !== id))
+    } catch (err) {
+      console.error(err)
+      throw err
     }
   }
 
@@ -67,8 +109,10 @@ export const ContactProvider = ({ children }) => {
       value={{
         contacts,
         loading,
+        error,
         getContacts,
         createContact,
+        updateContact,
         deleteContact
       }}
     >

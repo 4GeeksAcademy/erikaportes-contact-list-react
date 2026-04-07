@@ -1,14 +1,25 @@
 import { useContext, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { ContactContext } from "../context/ContactContext"
 import Modal from "./Modal"
 
 const ContactCard = ({ contact }) => {
   const { deleteContact } = useContext(ContactContext)
   const [showModal, setShowModal] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleDelete = async () => {
-    await deleteContact(contact.id)
-    setShowModal(false)
+    setLoading(true)
+    try {
+      await deleteContact(contact.id)
+      setShowModal(false)
+    } catch (error) {
+      console.error(error)
+      alert("Error al eliminar")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -19,20 +30,32 @@ const ContactCard = ({ contact }) => {
         <p>{contact.phone}</p>
         <p>{contact.address}</p>
 
-        <button
-          className="btn btn-danger"
-          onClick={() => setShowModal(true)}
-        >
-          Delete
-        </button>
+        {/* 🔥 botones mejor organizados */}
+        <div className="d-flex justify-content-between mt-3">
+          <button
+            className="btn btn-warning"
+            onClick={() => navigate("/add", { state: { contact } })}
+          >
+            Edit
+          </button>
+
+          <button
+            className="btn btn-danger"
+            onClick={() => setShowModal(true)}
+          >
+            Delete
+          </button>
+        </div>
       </div>
 
+      {/* 🔥 Modal */}
       {showModal && (
         <Modal
           title="Eliminar contacto"
           message="¿Estás segura que deseas eliminar este contacto?"
           onConfirm={handleDelete}
           onClose={() => setShowModal(false)}
+          loading={loading}
         />
       )}
     </div>

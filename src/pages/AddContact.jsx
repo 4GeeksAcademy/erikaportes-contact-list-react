@@ -1,17 +1,23 @@
 import { useState, useContext } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { ContactContext } from "../context/ContactContext"
 
 const AddContact = () => {
-  const { createContact } = useContext(ContactContext)
+  const { createContact, updateContact } = useContext(ContactContext)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // 🔥 detectar si estamos editando
+  const editingContact = location.state?.contact
 
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: ""
+    name: editingContact?.name || "",
+    email: editingContact?.email || "",
+    phone: editingContact?.phone || "",
+    address: editingContact?.address || ""
   })
+
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     setForm({
@@ -23,29 +29,38 @@ const AddContact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // 🔥 validación básica
-    if (!form.name || !form.email) {
+    // 🔥 validación mejorada
+    if (!form.name.trim() || !form.email.trim()) {
       alert("Nombre y email son obligatorios")
       return
     }
 
-    await createContact(form)
+    if (!form.email.includes("@")) {
+      alert("Email inválido")
+      return
+    }
 
-    // limpiar form
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      address: ""
-    })
+    setLoading(true)
 
-    // redirigir
-    navigate("/")
+    try {
+      if (editingContact) {
+        await updateContact(editingContact.id, form)
+      } else {
+        await createContact(form)
+      }
+
+      navigate("/")
+    } catch (error) {
+      console.error(error)
+      alert("Ocurrió un error")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="container mt-5">
-      <h2>Add Contact</h2>
+      <h2>{editingContact ? "Edit Contact" : "Add Contact"}</h2>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -84,8 +99,12 @@ const AddContact = () => {
           onChange={handleChange}
         />
 
-        <button className="btn btn-primary">
-          Save
+        <button className="btn btn-primary" disabled={loading}>
+          {loading
+            ? "Guardando..."
+            : editingContact
+            ? "Actualizar"
+            : "Guardar"}
         </button>
       </form>
     </div>
@@ -93,53 +112,3 @@ const AddContact = () => {
 }
 
 export default AddContact
-
-
-
-
-// export const AddContact = () => {
-//   const [formData, setFormData] = useState({
-//     fullName: "",
-//     email: ""
-//   });
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value
-//     });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log(formData);
-//   };
-
-//   return (
-//     <div className="form-container">
-//       <form onSubmit={handleSubmit} className="form">
-
-//         <label>Full Name</label>
-//         <input
-//           type="text"
-//           name="fullName"
-//           placeholder="Full Name"
-//           value={formData.fullName}
-//           onChange={handleChange}
-//         />
-
-//         <label>Email</label>
-//         <input
-//           type="email"
-//           name="email"
-//           placeholder="Email"
-//           value={formData.email}
-//           onChange={handleChange}
-//         />
-
-//         <button type="submit">Save</button>
-
-//       </form>
-//     </div>
-//   );
-// };
