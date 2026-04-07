@@ -1,28 +1,30 @@
-import { Link } from "react-router-dom";
-import { useContacts } from "../context/ContactContext";
-import { ContactCard } from "../components/ContactCard";
+import { useContext } from "react"
+import { ContactContext } from "../context/ContactContext"
+import ContactCard from "../components/ContactCard"
 
-export const Contacts = () => {
-  const { contacts } = useContacts();
+const Contacts = () => {
+  const { contacts, loading } = useContext(ContactContext)
 
   return (
-    <div className="container">
-      <h1>Contact List</h1>
+    <div className="container mt-5">
+      <h2>Contact List</h2>
 
-      <Link to="/add">
-        <button className="btn">Add new contact</button>
-      </Link>
+      {loading && <p>Cargando contactos...</p>}
 
-      {contacts.length === 0 ? (
-        <p>No hay contactos</p>
-      ) : (
-        contacts.map((contact) => (
-          <ContactCard key={contact.id} contact={contact} />
-        ))
+      {!loading && contacts.length === 0 && (
+        <p>No hay contactos disponibles</p>
       )}
+
+      <div className="row">
+        {contacts.map(contact => (
+          <ContactCard key={contact.id} contact={contact} />
+        ))}
+      </div>
     </div>
-  );
-};
+  )
+}
+
+export default Contacts
 
 
 

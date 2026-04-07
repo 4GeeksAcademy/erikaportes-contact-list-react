@@ -1,87 +1,98 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useContacts } from "../context/ContactContext";
+import { useState, useContext } from "react"
+import { useNavigate } from "react-router-dom"
+import { ContactContext } from "../context/ContactContext"
 
-export const AddContact = () => {
-  const { addContact, updateContact, contacts } = useContacts();
-  const navigate = useNavigate();
-  const { id } = useParams();
+const AddContact = () => {
+  const { createContact } = useContext(ContactContext)
+  const navigate = useNavigate()
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    address: "",
-  });
-
-  useEffect(() => {
-    if (id) {
-      const contact = contacts.find((c) => c.id === parseInt(id));
-      if (contact) setForm(contact);
-    }
-  }, [id, contacts]);
+    address: ""
+  })
 
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+      [e.target.name]: e.target.value
+    })
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
-    if (id) {
-      updateContact(form);
-    } else {
-      addContact(form);
+    // 🔥 validación básica
+    if (!form.name || !form.email) {
+      alert("Nombre y email son obligatorios")
+      return
     }
 
-    navigate("/");
-  };
+    await createContact(form)
+
+    // limpiar form
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      address: ""
+    })
+
+    // redirigir
+    navigate("/")
+  }
 
   return (
-    <div className="container">
-      <h1>{id ? "Edit Contact" : "Add Contact"}</h1>
+    <div className="container mt-5">
+      <h2>Add Contact</h2>
 
       <form onSubmit={handleSubmit}>
         <input
+          type="text"
           name="name"
-          placeholder="Full Name"
+          placeholder="Name"
+          className="form-control mb-2"
           value={form.name}
           onChange={handleChange}
         />
 
         <input
+          type="email"
           name="email"
           placeholder="Email"
+          className="form-control mb-2"
           value={form.email}
           onChange={handleChange}
         />
 
         <input
+          type="text"
           name="phone"
           placeholder="Phone"
+          className="form-control mb-2"
           value={form.phone}
           onChange={handleChange}
         />
 
         <input
+          type="text"
           name="address"
           placeholder="Address"
+          className="form-control mb-2"
           value={form.address}
           onChange={handleChange}
         />
 
-        <button type="submit">Save</button>
+        <button className="btn btn-primary">
+          Save
+        </button>
       </form>
-
-      <button onClick={() => navigate("/")}>
-        Back to contacts
-      </button>
     </div>
-  );
-};
+  )
+}
+
+export default AddContact
 
 
 

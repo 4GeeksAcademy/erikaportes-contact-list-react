@@ -1,33 +1,42 @@
-import { useNavigate } from "react-router-dom";
-import { useContacts } from "../context/ContactContext";
+import { useContext, useState } from "react"
+import { ContactContext } from "../context/ContactContext"
+import Modal from "./Modal"
 
-export const ContactCard = ({ contact }) => {
-  const { deleteContact } = useContacts();
-  const navigate = useNavigate();
+const ContactCard = ({ contact }) => {
+  const { deleteContact } = useContext(ContactContext)
+  const [showModal, setShowModal] = useState(false)
 
-  const handleDelete = () => {
-    if (confirm("¿Seguro que deseas eliminar este contacto?")) {
-      deleteContact(contact.id);
-    }
-  };
+  const handleDelete = async () => {
+    await deleteContact(contact.id)
+    setShowModal(false)
+  }
 
   return (
-    <div className="card">
-      <img src="https://i.pravatar.cc/100" alt="avatar" />
+    <div className="col-md-4">
+      <div className="card p-3 mb-3">
+        <h5>{contact.name}</h5>
+        <p>{contact.email}</p>
+        <p>{contact.phone}</p>
+        <p>{contact.address}</p>
 
-      <div className="info">
-        <h3>{contact.name}</h3>
-        <p>📍 {contact.address}</p>
-        <p>📞 {contact.phone}</p>
-        <p>✉️ {contact.email}</p>
-      </div>
-
-      <div className="actions">
-        <button onClick={() => navigate(`/edit/${contact.id}`)}>
-          ✏️
+        <button
+          className="btn btn-danger"
+          onClick={() => setShowModal(true)}
+        >
+          Delete
         </button>
-        <button onClick={handleDelete}>🗑️</button>
       </div>
+
+      {showModal && (
+        <Modal
+          title="Eliminar contacto"
+          message="¿Estás segura que deseas eliminar este contacto?"
+          onConfirm={handleDelete}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
-  );
-};
+  )
+}
+
+export default ContactCard

@@ -1,43 +1,78 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useState, useEffect } from "react"
 
-// Crear contexto
-const ContactContext = createContext();
+export const ContactContext = createContext()
 
-// Hook personalizado (para usar el contexto fácil)
-export const useContacts = () => useContext(ContactContext);
+const API_URL = "https://playground.4geeks.com/contact"
 
-// Provider
 export const ContactProvider = ({ children }) => {
-    const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState([])
+  const [loading, setLoading] = useState(false)
 
-    // Agregar contacto
-    const addContact = (contact) => {
-        setContacts([...contacts, contact]);
-    };
+  // 📌 Obtener contactos
+  const getContacts = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_URL}/agendas/erika/contacts`)
+      if (!res.ok) throw new Error("Error fetching contacts")
 
-    // Eliminar contacto
-    const deleteContact = (id) => {
-        setContacts(contacts.filter((c, index) => index !== id));
-    };
+      const data = await res.json()
+      setContacts(data.contacts || [])
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-    // Editar contacto
-    const updateContact = (id, updatedContact) => {
-        const updated = contacts.map((c, index) =>
-            index === id ? updatedContact : c
-        );
-        setContacts(updated);
-    };
+  // 📌 Crear contacto
+  const createContact = async (contact) => {
+    try {
+      const res = await fetch(`${API_URL}/agendas/erika/contacts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(contact)
+      })
 
-    return (
-        <ContactContext.Provider
-            value={{
-                contacts,
-                addContact,
-                deleteContact,
-                updateContact
-            }}
-        >
-            {children}
-        </ContactContext.Provider>
-    );
-};
+      if (!res.ok) throw new Error("Error creating contact")
+
+      await getContacts()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // 📌 Eliminar contacto
+  const deleteContact = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/contacts/${id}`, {
+        method: "DELETE"
+      })
+
+      if (!res.ok) throw new Error("Error deleting contact")
+
+      await getContacts()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getContacts()
+  }, [])
+
+  return (
+    <ContactContext.Provider
+      value={{
+        contacts,
+        loading,
+        getContacts,
+        createContact,
+        deleteContact
+      }}
+    >
+      {children}
+    </ContactContext.Provider>
+  )
+}
