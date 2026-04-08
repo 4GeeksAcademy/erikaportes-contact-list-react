@@ -1,6 +1,16 @@
 import { useContext } from "react"
 import { ContactContext } from "../context/ContactContext"
 import ContactCard from "../components/ContactCard"
+import { useNavigate } from "react-router-dom"
+
+const navigate = useNavigate(
+  <button
+    className="btn btn-success mb-3"
+    onClick={() => navigate("/add")}
+  >
+    Add Contact
+  </button>
+)
 
 const Contacts = () => {
   const { contacts, loading, error } = useContext(ContactContext)
@@ -17,7 +27,7 @@ const Contacts = () => {
     <div className="container mt-5">
       <h2>Contact List</h2>
 
-      {contacts.length === 0 ? (
+      {Array.isArray(contacts) && contacts.length === 0 ? (
         <p>No hay contactos disponibles</p>
       ) : (
         <div className="row">

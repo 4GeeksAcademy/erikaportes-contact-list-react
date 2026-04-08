@@ -55,12 +55,23 @@ export const ContactProvider = ({ children }) => {
         body: JSON.stringify(contact)
       })
 
-      setContacts(prev => [...prev, data])
+      setContacts(prev => [...prev, data.contact])
     } catch (err) {
       console.error(err)
       throw err
     }
   }
+
+  // CREATE AGENDA
+  const ensureAgenda = async () => {
+  try {
+    await fetch(`${API_URL}/agendas/${AGENDA}`, {
+      method: "POST"
+    })
+  } catch (e) {
+    console.log("Agenda ya existe")
+  }
+}
 
   // UPDATE
   const updateContact = async (id, updatedData) => {
@@ -101,8 +112,8 @@ export const ContactProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    getContacts()
-  }, [])
+  ensureAgenda().then(getContacts)
+}, [])
 
   return (
     <ContactContext.Provider

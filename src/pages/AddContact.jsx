@@ -7,8 +7,7 @@ const AddContact = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // 🔥 detectar si estamos editando
-  const editingContact = location.state?.contact
+  const editingContact = location.state?.contact || null
 
   const [form, setForm] = useState({
     name: editingContact?.name || "",

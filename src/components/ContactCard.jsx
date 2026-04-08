@@ -30,7 +30,6 @@ const ContactCard = ({ contact }) => {
         <p>{contact.phone}</p>
         <p>{contact.address}</p>
 
-        {/* 🔥 botones mejor organizados */}
         <div className="d-flex justify-content-between mt-3">
           <button
             className="btn btn-warning"
@@ -48,7 +47,6 @@ const ContactCard = ({ contact }) => {
         </div>
       </div>
 
-      {/* 🔥 Modal */}
       {showModal && (
         <Modal
           title="Eliminar contacto"
