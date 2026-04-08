@@ -3,7 +3,7 @@ import { createContext, useState, useEffect } from "react";
 export const ContactContext = createContext();
 
 const BASE_URL = "https://playground.4geeks.com/contact/agendas";
-const AGENDA = "erikaportes"; // ⚠️ CAMBIA si usas otro nombre
+const AGENDA = "erikaportes"; // 
 
 export const ContactProvider = ({ children }) => {
   const [contacts, setContacts] = useState([]);
@@ -62,16 +62,16 @@ export const ContactProvider = ({ children }) => {
   };
 
   // ✅ Actualizar contacto
-  const updateContact = async (contact) => {
+  const updateContact = async (id, updatedContact) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/${AGENDA}/contacts/${contact.id}`,
+        `${BASE_URL}/${AGENDA}/contacts/${id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(contact)
+          body: JSON.stringify(updatedContact)
         }
       );
 

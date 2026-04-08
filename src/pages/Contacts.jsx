@@ -18,7 +18,7 @@ const Contacts = () => {
           className="btn btn-success"
           onClick={() => navigate("/add")}
         >
-          Agrega un nuevo contacto
+          Add new contact
         </button>
       </div>
 
