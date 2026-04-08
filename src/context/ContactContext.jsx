@@ -2,109 +2,128 @@ import { createContext, useState, useEffect } from "react";
 
 export const ContactContext = createContext();
 
-const API_URL = "https://playground.4geeks.com/contact/agendas/erika";
+const BASE_URL = "https://playground.4geeks.com/contact/agendas";
+const AGENDA = "erikaportes"; // ⚠️ CAMBIA si usas otro nombre
 
 export const ContactProvider = ({ children }) => {
   const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  // Obtener todos los contactos
+  // ✅ Obtener contactos
   const getContacts = async () => {
-    setLoading(true);
-    setError(null);
     try {
-      const res = await fetch(`${API_URL}/contacts`);
-      if (!res.ok) throw new Error("Error al obtener contactos");
-      const data = await res.json();
-      setContacts(data.contacts ?? []);
-    } catch (err) {
-      console.error("getContacts:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      const response = await fetch(`${BASE_URL}/${AGENDA}/contacts`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setContacts(data.contacts || []);
+      } else {
+        console.error("Error al obtener contactos:", data);
+      }
+    } catch (error) {
+      console.error("Error en getContacts:", error);
     }
   };
 
-  // Crear nuevo contacto
+  // ✅ Crear agenda si no existe
+  const createAgenda = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/${AGENDA}`, {
+        method: "POST"
+      });
+
+      if (!response.ok) {
+        console.log("Agenda ya existe o error al crearla");
+      }
+    } catch (error) {
+      console.error("Error creando agenda:", error);
+    }
+  };
+
+  // ✅ Crear contacto
   const createContact = async (contact) => {
-    setLoading(true);
-    setError(null);
     try {
-      const res = await fetch(`${API_URL}/contacts`, {
+      const response = await fetch(`${BASE_URL}/${AGENDA}/contacts`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(contact),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(contact)
       });
-      if (!res.ok) throw new Error("Error al crear contacto");
-      await getContacts(); // actualizar lista
-      return true;
-    } catch (err) {
-      console.error("createContact:", err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
+
+      if (response.ok) {
+        await getContacts();
+      } else {
+        const error = await response.json();
+        console.error("Error al crear contacto:", error);
+      }
+    } catch (error) {
+      console.error("Error en createContact:", error);
     }
   };
 
-  // Actualizar contacto existente
-  const updateContact = async (id, updatedData) => {
-    setLoading(true);
-    setError(null);
+  // ✅ Actualizar contacto
+  const updateContact = async (contact) => {
     try {
-      const res = await fetch(`${API_URL}/contacts/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData),
-      });
-      if (!res.ok) throw new Error("Error al actualizar contacto");
-      await getContacts();
-      return true;
-    } catch (err) {
-      console.error("updateContact:", err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
+      const response = await fetch(
+        `${BASE_URL}/${AGENDA}/contacts/${contact.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(contact)
+        }
+      );
+
+      if (response.ok) {
+        await getContacts();
+      } else {
+        const error = await response.json();
+        console.error("Error al actualizar:", error);
+      }
+    } catch (error) {
+      console.error("Error en updateContact:", error);
     }
   };
 
-  // Eliminar contacto
+  // ✅ Eliminar contacto
   const deleteContact = async (id) => {
-    setLoading(true);
-    setError(null);
     try {
-      const res = await fetch(`${API_URL}/contacts/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Error al eliminar contacto");
-      await getContacts();
-      return true;
-    } catch (err) {
-      console.error("deleteContact:", err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
+      const response = await fetch(
+        `${BASE_URL}/${AGENDA}/contacts/${id}`,
+        {
+          method: "DELETE"
+        }
+      );
+
+      if (response.ok) {
+        await getContacts();
+      } else {
+        const error = await response.json();
+        console.error("Error al eliminar:", error);
+      }
+    } catch (error) {
+      console.error("Error en deleteContact:", error);
     }
   };
 
-  // Cargar contactos al iniciar
+  // ✅ Inicialización
   useEffect(() => {
-    getContacts();
+    const init = async () => {
+      await createAgenda();
+      await getContacts();
+    };
+    init();
   }, []);
 
   return (
     <ContactContext.Provider
       value={{
         contacts,
-        loading,
-        error,
         getContacts,
         createContact,
         updateContact,
-        deleteContact,
+        deleteContact
       }}
     >
       {children}

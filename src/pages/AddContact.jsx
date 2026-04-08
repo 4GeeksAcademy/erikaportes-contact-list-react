@@ -1,261 +1,111 @@
-import { useState, useContext } from "react";
-
-import { useNavigate, useLocation, Link } from "react-router-dom";
-
+import { useState, useContext, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ContactContext } from "../context/ContactContext";
 
-
-
 const AddContact = () => {
-
   const { createContact, updateContact } = useContext(ContactContext);
-
   const navigate = useNavigate();
-
   const location = useLocation();
 
+  // 🔹 Si viene contacto → modo edición
   const editingContact = location.state?.contact || null;
 
-
-
   const [form, setForm] = useState({
-
-    name: editingContact?.name || "", // 🔑 Cambiado a "name"
-
-    email: editingContact?.email || "",
-
-    phone: editingContact?.phone || "",
-
-    address: editingContact?.address || ""
-
+    name: "",
+    email: "",
+    phone: "",
+    address: ""
   });
 
+  // ✅ Cargar datos si estás editando
+  useEffect(() => {
+    if (editingContact) {
+      setForm({
+        name: editingContact.name || "",
+        email: editingContact.email || "",
+        phone: editingContact.phone || "",
+        address: editingContact.address || "",
+        id: editingContact.id // 🔥 IMPORTANTE para update
+      });
+    }
+  }, [editingContact]);
 
-
-  const [loading, setLoading] = useState(false);
-
-
-
+  // ✅ Manejo de inputs
   const handleChange = (e) => {
+    const { name, value } = e.target;
 
-    setForm({
-
-      ...form,
-
-      [e.target.name]: e.target.value
-
-    });
-
+    setForm((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-
-
+  // ✅ Submit
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
-
-
-    if (!form.name.trim() || !form.email.trim()) {
-
-      alert("Nombre y correo electrónico son obligatorios");
-
+    if (!form.name || !form.email || !form.phone || !form.address) {
+      alert("Todos los campos son obligatorios");
       return;
-
     }
 
-
-
-    setLoading(true);
-
-    try {
-
-      if (editingContact) {
-
-        await updateContact(editingContact.id, form);
-
-      } else {
-
-        await createContact(form);
-
-      }
-
-      navigate("/", { replace: true });
-
-    } catch (error) {
-
-      console.error("Error al guardar el contacto:", error);
-
-      alert("Ocurrió un error al guardar el contacto");
-
-    } finally {
-
-      setLoading(false);
-
+    if (editingContact) {
+      await updateContact(form);
+    } else {
+      await createContact(form);
     }
 
+    navigate("/");
   };
 
-
-
   return (
-
-    <div className="container mt-5" style={{ maxWidth: "800px" }}>
-
-      <h1 className="text-center mb-4 fw-bold">
-
-        {editingContact ? "Editar contacto" : "Agregar nuevo contacto"}
-
-      </h1>
-
-
+    <div className="container">
+      <h2>{editingContact ? "Editar Contacto" : "Agregar Contacto"}</h2>
 
       <form onSubmit={handleSubmit}>
-
-        {/* Name */}
-
-        <div className="mb-3">
-
-          <label className="form-label fw-bold">Nombre completo</label>
-
-          <input
-
-            type="text"
-
-            name="name"
-
-            className="form-control form-control-md"
-
-            placeholder="Nombre completo"
-
-            value={form.name}
-
-            onChange={handleChange}
-
-          />
-
-        </div>
-
-
-
-        {/* Email */}
-
-        <div className="mb-3">
-
-          <label className="form-label fw-bold">Correo electrónico</label>
-
-          <input
-
-            type="email"
-
-            name="email"
-
-            className="form-control form-control-md"
-
-            placeholder="Ingresa tu correo electrónico"
-
-            value={form.email}
-
-            onChange={handleChange}
-
-          />
-
-        </div>
-
-
-
-        {/* Phone */}
-
-        <div className="mb-3">
-
-          <label className="form-label fw-bold">Teléfono</label>
-
-          <input
-
-            type="text"
-
-            name="phone"
-
-            className="form-control form-control-md"
-
-            placeholder="Ingresa tu teléfono"
-
-            value={form.phone}
-
-            onChange={handleChange}
-
-          />
-
-        </div>
-
-
-
-        {/* Address */}
-
-        <div className="mb-3">
-
-          <label className="form-label fw-bold">Dirección</label>
-
-          <input
-
-            type="text"
-
-            name="address"
-
-            className="form-control form-control-md"
-
-            placeholder="Ingresa tu dirección"
-
-            value={form.address}
-
-            onChange={handleChange}
-
-          />
-
-        </div>
-
-
-
-        {/* Botón Guardar */}
-
-        <div className="d-grid gap-2">
-
-          <button
-
-            type="submit"
-
-            className="btn btn-primary btn-lg"
-
-            disabled={loading}
-
-          >
-
-            {loading ? "Guardando..." : editingContact ? "Actualizar" : "Guardar"}
-
-          </button>
-
-        </div>
-
-
-
-        <div className="mt-2 text-center">
-
-          <Link to="/" className="text-decoration-none">
-
-            Regresar a la lista de contactos
-
-          </Link>
-
-        </div>
-
+        <input
+          type="text"
+          name="name"
+          placeholder="Nombre completo"
+          value={form.name}
+          onChange={handleChange}
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Correo electrónico"
+          value={form.email}
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="phone"
+          placeholder="Teléfono"
+          value={form.phone}
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="address"
+          placeholder="Dirección"
+          value={form.address}
+          onChange={handleChange}
+        />
+
+        <button type="submit">
+          {editingContact ? "Actualizar" : "Guardar"}
+        </button>
       </form>
 
+      <button onClick={() => navigate("/")}>
+        Volver
+      </button>
     </div>
-
   );
-
 };
 
+export default AddContact;
 
-
-export default AddContact
