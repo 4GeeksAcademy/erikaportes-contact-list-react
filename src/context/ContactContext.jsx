@@ -2,128 +2,98 @@ import { createContext, useState, useEffect } from "react"
 
 export const ContactContext = createContext()
 
-const API_URL = "https://playground.4geeks.com/contact"
-const AGENDA = "erika" // 
+const API_URL = "https://playground.4geeks.com/contact/agendas/erika"
 
 export const ContactProvider = ({ children }) => {
   const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
 
-  // 🔥 helper fetch
-  const fetchAPI = async (endpoint, options = {}) => {
-    try {
-      const res = await fetch(`${API_URL}${endpoint}`, options)
-
-      if (!res.ok) {
-        const errData = await res.json()
-        throw new Error(errData.message || "API Error")
-      }
-
-      return await res.json()
-    } catch (err) {
-      setError(err.message)
-      throw err
-    }
-  }
-
-  // GET
+  //  Obtener contactos
   const getContacts = async () => {
     setLoading(true)
-    setError(null)
-
     try {
-      const data = await fetchAPI(`/agendas/${AGENDA}/contacts`)
-      setContacts(data.contacts || [])
-    } catch (err) {
-      console.error(err)
+      const res = await fetch(API_URL + "/contacts")
+
+      if (!res.ok) throw new Error("Error fetching contacts")
+
+      const data = await res.json()
+      setContacts(data.contacts ?? [])
+    } catch (error) {
+      console.error("getContacts:", error)
+      setContacts([]) // fallback seguro
     } finally {
       setLoading(false)
     }
   }
 
-  // CREATE (optimista)
+  //  Crear contacto
   const createContact = async (contact) => {
-    setError(null)
-
     try {
-      const data = await fetchAPI(`/agendas/${AGENDA}/contacts`, {
+      const res = await fetch(API_URL + "/contacts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contact)
       })
 
-      setContacts(prev => [...prev, data.contact])
-    } catch (err) {
-      console.error(err)
-      throw err
+      if (!res.ok) throw new Error("Error creating contact")
+
+      await getContacts()
+      return true
+    } catch (error) {
+      console.error("createContact:", error)
+      throw error
     }
   }
 
-  // CREATE AGENDA
-  const ensureAgenda = async () => {
-  try {
-    await fetch(`${API_URL}/agendas/${AGENDA}`, {
-      method: "POST"
-    })
-  } catch (e) {
-    console.log("Agenda ya existe")
-  }
-}
-
-  // UPDATE
+  //  Actualizar contacto
   const updateContact = async (id, updatedData) => {
-    setError(null)
-
     try {
-      await fetchAPI(`/contacts/${id}`, {
+      const res = await fetch(API_URL + "/contacts/" + id, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData)
       })
 
-      setContacts(prev =>
-        prev.map(c => (c.id === id ? { ...c, ...updatedData } : c))
-      )
-    } catch (err) {
-      console.error(err)
-      throw err
+      if (!res.ok) throw new Error("Error updating contact")
+
+      await getContacts()
+      return true
+    } catch (error) {
+      console.error("updateContact:", error)
+      throw error
     }
   }
 
-  // DELETE
+  //  Eliminar contacto
   const deleteContact = async (id) => {
-    setError(null)
-
     try {
-      await fetchAPI(`/contacts/${id}`, {
-        method: "DELETE"
+      const res = await fetch(API_URL + "/contacts/" + id, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
       })
 
-      setContacts(prev => prev.filter(c => c.id !== id))
-    } catch (err) {
-      console.error(err)
-      throw err
+      if (!res.ok) throw new Error("Error deleting contact")
+
+      await getContacts()
+      return true
+    } catch (error) {
+      console.error("deleteContact:", error)
+      throw error
     }
   }
 
   useEffect(() => {
-  ensureAgenda().then(getContacts)
-}, [])
+    getContacts()
+  }, [])
 
   return (
     <ContactContext.Provider
       value={{
         contacts,
         loading,
-        error,
         getContacts,
         createContact,
-        updateContact,
+        updateContact, 
         deleteContact
       }}
     >

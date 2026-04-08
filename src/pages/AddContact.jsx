@@ -48,7 +48,7 @@ const AddContact = () => {
         await createContact(form)
       }
 
-      navigate("/")
+      navigate("/", { replace: true })
     } catch (error) {
       console.error(error)
       alert("Ocurrió un error")

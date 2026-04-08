@@ -6,21 +6,17 @@ import Modal from "./Modal"
 const ContactCard = ({ contact }) => {
   const { deleteContact } = useContext(ContactContext)
   const [showModal, setShowModal] = useState(false)
-  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleDelete = async () => {
-    setLoading(true)
-    try {
-      await deleteContact(contact.id)
-      setShowModal(false)
-    } catch (error) {
-      console.error(error)
-      alert("Error al eliminar")
-    } finally {
-      setLoading(false)
-    }
+const handleDelete = async () => {
+  try {
+    await deleteContact(contact.id)
+    setShowModal(false)
+  } catch (error) {
+    console.error("Error deleting contact:", error)
+    alert("Error al eliminar contacto")
   }
+}
 
   return (
     <div className="col-md-4">
@@ -53,7 +49,6 @@ const ContactCard = ({ contact }) => {
           message="¿Estás segura que deseas eliminar este contacto?"
           onConfirm={handleDelete}
           onClose={() => setShowModal(false)}
-          loading={loading}
         />
       )}
     </div>
