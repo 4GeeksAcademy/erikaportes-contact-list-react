@@ -1,58 +1,57 @@
-import { useContext, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { ContactContext } from "../context/ContactContext"
-import Modal from "./Modal"
-
 const ContactCard = ({ contact }) => {
-  const { deleteContact } = useContext(ContactContext)
-  const [showModal, setShowModal] = useState(false)
-  const navigate = useNavigate()
-
-const handleDelete = async () => {
-  try {
-    await deleteContact(contact.id)
-    setShowModal(false)
-  } catch (error) {
-    console.error("Error deleting contact:", error)
-    alert("Error al eliminar contacto")
-  }
-}
+  const { deleteContact } = useContext(ContactContext);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   return (
-    <div className="col-md-4">
-      <div className="card p-3 mb-3">
-        <h5>{contact.name}</h5>
-        <p>{contact.email}</p>
-        <p>{contact.phone}</p>
-        <p>{contact.address}</p>
+    <div className="list-group-item p-4">
+      <div className="d-flex align-items-center">
+        {/* Imagen representativa */}
+        <div className="me-4">
+          <img 
+            src="https://picsum.photos/100" 
+            className="rounded-circle" 
+            alt="profile" 
+            style={{width: "100px", height: "100px"}} 
+          />
+        </div>
 
-        <div className="d-flex justify-content-between mt-3">
+        {/* Info - Usamos full_name */}
+        <div className="flex-grow-1">
+          <h5 className="mb-1">{contact.name}</h5>
+          <p className="mb-1 text-muted"><i className="bi bi-geo-alt-fill me-2"></i>{contact.address}</p>
+          <p className="mb-1 text-muted"><i className="bi bi-telephone-fill me-2"></i>{contact.phone}</p>
+          <p className="mb-0 text-muted"><i className="bi bi-envelope-fill me-2"></i>{contact.email}</p>
+        </div>
+
+        {/* Acciones */}
+        <div className="d-flex">
           <button
-            className="btn btn-warning"
+            className="btn btn-link text-dark me-3"
             onClick={() => navigate("/add", { state: { contact } })}
           >
-            Edit
+            <i className="fa-solid fa-pencil"></i> Editar
           </button>
-
           <button
-            className="btn btn-danger"
+            className="btn btn-link text-danger"
             onClick={() => setShowModal(true)}
           >
-            Delete
+            <i className="fa-solid fa-trash"></i> Borrar
           </button>
         </div>
       </div>
 
       {showModal && (
         <Modal
-          title="Eliminar contacto"
-          message="¿Estás segura que deseas eliminar este contacto?"
-          onConfirm={handleDelete}
+          onConfirm={() => deleteContact(contact.id)}
           onClose={() => setShowModal(false)}
         />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ContactCard
+
+
+
+
