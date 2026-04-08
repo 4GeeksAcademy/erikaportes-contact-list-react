@@ -6,13 +6,12 @@ const ContactCard = ({ contact }) => {
   const { deleteContact } = useContext(ContactContext);
   const navigate = useNavigate();
 
-  // 🔹 Normalizar datos (🔥 MUY IMPORTANTE)
   const name = contact.full_name || contact.name || "Sin nombre";
   const address = contact.address || "Sin dirección";
   const phone = contact.phone || "Sin teléfono";
   const email = contact.email || "Sin email";
 
-  // 🔹 Imagen segura
+  // Imagen segura
   const imageId = contact.id ? Number(contact.id) + 10 : 1;
 
   const handleDelete = async () => {
@@ -91,68 +90,6 @@ const ContactCard = ({ contact }) => {
 
 export default ContactCard;
 
-
-
-
-
-
-
-
-// import { useContext } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { ContactContext } from "../context/ContactContext";
-
-// const ContactCard = ({ contact }) => {
-//   const { deleteContact } = useContext(ContactContext);
-//   const navigate = useNavigate();
-
-//   // ✅ Eliminar contacto
-//   const handleDelete = async () => {
-//     const confirmDelete = window.confirm("¿Seguro que deseas eliminar este contacto?");
-    
-//     if (confirmDelete) {
-//       await deleteContact(contact.id);
-//     }
-//   };
-
-//   // ✅ Ir a editar
-//   const handleEdit = () => {
-//     navigate("/add", { state: { contact } });
-//   };
-
-//   return (
-//     <div className="card mb-3 p-3">
-//       <div className="d-flex justify-content-between align-items-center">
-
-//         <div>
-//           <h5>{contact.name}</h5>
-//           <p className="mb-1">📧 {contact.email}</p>
-//           <p className="mb-1">📞 {contact.phone}</p>
-//           <p className="mb-1">📍 {contact.address}</p>
-//         </div>
-
-//         <div>
-//           <button 
-//             className="btn btn-outline-primary me-2"
-//             onClick={handleEdit}
-//           >
-//             ✏️
-//           </button>
-
-//           <button 
-//             className="btn btn-outline-danger"
-//             onClick={handleDelete}
-//           >
-//             🗑️
-//           </button>
-//         </div>
-
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ContactCard;
 
 
 

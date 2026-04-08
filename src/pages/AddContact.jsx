@@ -10,7 +10,7 @@ const AddContact = () => {
   const editingContact = location.state?.contact || null;
 
   const [form, setForm] = useState({
-    name: "", // 👈 Cambiado a full_name para la API
+    name: "", // 
     email: "",
     phone: "",
     address: ""

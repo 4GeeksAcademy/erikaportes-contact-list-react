@@ -8,7 +8,7 @@ const AGENDA = "erikaportes"; //
 export const ContactProvider = ({ children }) => {
   const [contacts, setContacts] = useState([]);
 
-  // ✅ Obtener contactos
+  // Obtener contactos
   const getContacts = async () => {
     try {
       const response = await fetch(`${BASE_URL}/${AGENDA}/contacts`);
@@ -24,7 +24,7 @@ export const ContactProvider = ({ children }) => {
     }
   };
 
-  // ✅ Crear agenda si no existe
+  // Crear agenda
   const createAgenda = async () => {
     try {
       const response = await fetch(`${BASE_URL}/${AGENDA}`, {
@@ -39,7 +39,7 @@ export const ContactProvider = ({ children }) => {
     }
   };
 
-  // ✅ Crear contacto
+  // Crear contacto
   const createContact = async (contact) => {
     try {
       const response = await fetch(`${BASE_URL}/${AGENDA}/contacts`, {
@@ -61,7 +61,7 @@ export const ContactProvider = ({ children }) => {
     }
   };
 
-  // ✅ Actualizar contacto
+  // Actualizar contacto
   const updateContact = async (id, updatedContact) => {
     try {
       const response = await fetch(
@@ -86,7 +86,7 @@ export const ContactProvider = ({ children }) => {
     }
   };
 
-  // ✅ Eliminar contacto
+  // Eliminar contacto
   const deleteContact = async (id) => {
     try {
       const response = await fetch(
@@ -107,7 +107,7 @@ export const ContactProvider = ({ children }) => {
     }
   };
 
-  // ✅ Inicialización
+  // Inicialización
   useEffect(() => {
     const init = async () => {
       await createAgenda();
