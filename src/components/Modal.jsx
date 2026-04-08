@@ -4,9 +4,15 @@ const Modal = ({ title, message, onConfirm, onClose }) => {
   const [loading, setLoading] = useState(false)
 
   const handleConfirm = async () => {
-    setLoading(true)
-    await onConfirm()
-    setLoading(false)
+    try {
+      setLoading(true)
+      await onConfirm()
+    } catch (error) {
+      console.error(error)
+      alert("Error al eliminar")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
