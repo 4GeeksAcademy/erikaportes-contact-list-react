@@ -50,3 +50,9 @@ const Modal = ({ title, message, onConfirm, onClose }) => {
 }
 
 export default Modal
+
+
+
+
+
+
