@@ -21,10 +21,13 @@ const router = createBrowserRouter([
       {
         path: "/add",
         element: <AddContact />
+      },
+      {
+        path: "/edit/:id", 
+        element: <AddContact />
       }
     ]
   }
 ]);
 
 export default router;
-

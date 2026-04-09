@@ -27,8 +27,8 @@ const ContactCard = ({ contact }) => {
   };
 
   const handleEdit = () => {
-    navigate("/add", { state: { contact } });
-  };
+  navigate(`/edit/${contact.id}`); 
+};
 
   return (
     <div className="list-group-item p-4">

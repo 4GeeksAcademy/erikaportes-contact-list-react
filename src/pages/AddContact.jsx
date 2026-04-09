@@ -1,16 +1,16 @@
-import { useState, useContext, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { ContactContext } from "../context/ContactContext";
 
 const AddContact = () => {
-  const { createContact, updateContact } = useContext(ContactContext);
+  const { contacts, createContact, updateContact } = useContext(ContactContext);
   const navigate = useNavigate();
-  const location = useLocation();
+  const { id } = useParams(); // id dinámico de la URL
 
-  const editingContact = location.state?.contact || null;
+  const editingContact = contacts.find(c => c.id === Number(id)) || null;
 
   const [form, setForm] = useState({
-    name: "", // 
+    name: "",
     email: "",
     phone: "",
     address: ""
@@ -30,10 +30,7 @@ const AddContact = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -43,8 +40,9 @@ const AddContact = () => {
       alert("Todos los campos son obligatorios");
       return;
     }
+
     if (editingContact) {
-      const { id, ...data } = form; 
+      const { id, ...data } = form;
       await updateContact(id, data);
     } else {
       await createContact(form);
@@ -60,7 +58,6 @@ const AddContact = () => {
       </h1>
 
       <form onSubmit={handleSubmit}>
-        {/* Full Name */}
         <div className="mb-3 text-start">
           <label className="form-label fw-bold">Full Name</label>
           <input
@@ -73,7 +70,6 @@ const AddContact = () => {
           />
         </div>
 
-        {/* Email */}
         <div className="mb-3 text-start">
           <label className="form-label fw-bold">Email</label>
           <input
@@ -86,7 +82,6 @@ const AddContact = () => {
           />
         </div>
 
-        {/* Phone */}
         <div className="mb-3 text-start">
           <label className="form-label fw-bold">Phone</label>
           <input
@@ -99,7 +94,6 @@ const AddContact = () => {
           />
         </div>
 
-        {/* Address */}
         <div className="mb-3 text-start">
           <label className="form-label fw-bold">Address</label>
           <input
@@ -112,26 +106,21 @@ const AddContact = () => {
           />
         </div>
 
-        {/* Botón Guardar / Save */}
         <div className="d-grid gap-2">
           <button type="submit" className="btn btn-primary btn-lg">
-            save
+            Save
           </button>
         </div>
       </form>
 
-      {/* Link de retorno */}
       <div className="mt-2 text-start fs-6">
-        <Link to="/">
-          Get back to contacts
-        </Link>
+        <Link to="/">Get back to contacts</Link>
       </div>
     </div>
   );
 };
 
 export default AddContact;
-
 
 
 
